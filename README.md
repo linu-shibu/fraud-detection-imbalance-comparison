@@ -8,7 +8,7 @@ cost**.
 
 ## Problem
 
-Fraud detection is a textbook extreme-imbalance classification problem —
+Fraud detection is a textbook extreme-imbalance classification problem,
 in this dataset, legitimate transactions outnumber fraudulent ones **172:1**.
 A naive classifier can score >99% accuracy by predicting "not fraud" for
 everything, while catching zero actual fraud. This project treats that as
@@ -22,23 +22,23 @@ category, amount, timestamp, and geolocation fields, labeled `is_fraud`
 
 ## Approach
 
-1. **EDA** — examined class balance, missing values, and time-based fraud
+1. **EDA**: examined class balance, missing values, and time-based fraud
    patterns (hour of day, day of week).
-2. **Leakage-safe split** — data was split into train/test **before** any
+2. **Leakage-safe split**: data was split into train/test **before** any
    imbalance correction, so the test set retained the real 172:1 ratio.
    Evaluating on an artificially balanced test set would have produced
    misleadingly optimistic metrics; this project deliberately avoids that.
-3. **Feature engineering** — target encoding for high-cardinality
+3. **Feature engineering**: target encoding for high-cardinality
    categorical fields (merchant, category, job, state, gender), fit on
    training labels only; derived `age` from date of birth and transaction
    timestamp; derived time-based features (`hour`, `day_of_week`,
    `is_late_night`).
-4. **Model comparison** — trained and evaluated 5 classifiers (Logistic
+4. **Model comparison**: trained and evaluated 5 classifiers (Logistic
    Regression, Random Forest, XGBoost, SVM, MLP) on identical
-   train/test splits using precision, recall, F1, ROC-AUC, and PR-AUC —
+   train/test splits using precision, recall, F1, ROC-AUC, and PR-AUC,
    PR-AUC and recall were prioritized over accuracy and ROC-AUC, since
    both are far more robust to extreme class imbalance.
-5. **Imbalance-method comparison** — took the best model (XGBoost) and
+5. **Imbalance-method comparison**: took the best model (XGBoost) and
    compared three ways of handling the imbalance: random undersampling,
    class weighting (`scale_pos_weight`), and SMOTE oversampling.
 
@@ -65,11 +65,11 @@ gradient-boosted trees' typical strength on structured/tabular data.
 | SMOTE | 0.856 | 0.856 | **0.856** | 0.912 |
 | Undersampling | 0.178 | 0.979 | 0.302 | 0.840 |
 
-Class weighting and SMOTE both substantially outperformed undersampling —
+Class weighting and SMOTE both substantially outperformed undersampling,
 because both retain the full training set, while undersampling discards
 over 98% of legitimate transactions to force balance. Between the two,
 class weighting catches more fraud (higher recall), while SMOTE produces
-fewer false alarms per fraud caught (higher precision/F1) — the right
+fewer false alarms per fraud caught (higher precision/F1), the right
 choice depends on the relative business cost of a missed fraud versus a
 false positive.
 
@@ -83,7 +83,7 @@ features for XGBoost, ahead of any target-encoded categorical field.
 Mid-project, comparing XGBoost trained on undersampled data against a test
 set encoded using the *full* dataset's label distribution produced a
 sharp, suspicious drop in recall (0.98 → 0.16). Root cause: target
-encoding values are learned from whichever training labels produced them —
+encoding values are learned from whichever training labels produced them,
 encoding fit on a 50/50 undersampled set assigns very different values to
 the same real-world category than encoding fit on the true 172:1
 distribution. Evaluating a model against features encoded on a different
